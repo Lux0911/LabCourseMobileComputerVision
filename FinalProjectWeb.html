@@ -1,0 +1,102 @@
+<html>
+
+<head>
+    <title>LabCourseMobileComputerVision</title>
+    <!-- CSS = Cascading Style Sheets -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="style.css">
+
+</head>
+
+<body>
+    <h1>Room Finder</h1>
+    <p>Take a picture or upload an image of a supported room or hallway to directly check where you are.</p>
+    <video id="video" autoplay playsinline></video>
+    <img id="photo"/>
+    <br>
+    <button id="captureButton" class="btn">Take Image</button>
+    <button id="uploadButton" class="btn">Upload Image</button>
+    <button id="classifyButton" class="clb">Classify Image</button>
+    <input type="file" id="fileInput" accept ="image/*" style="display:none;"/>
+    
+    <canvas id="canvas" style="display:none;"></canvas> 
+    
+    <div id="resultDiv" class="result"></div>
+
+    
+    <script>
+        async function startCamera() {
+            const videoElement = document.getElementById('video');
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: 
+                    {facingMode: "environment"},
+                    audio: false
+                });
+
+                videoElement.srcObject = stream;
+                videoElement.play();
+            } catch (error) {
+                console.error("Error accessing camera: ", error);
+            }
+            
+        }
+        window.addEventListener('load', startCamera);
+
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const photo = document.getElementById('photo');
+        const captureButton = document.getElementById('captureButton');
+        const resultDiv = document.getElementById('resultDiv');
+        const uploadButton = document.getElementById('uploadButton');
+        const fileInput = document.getElementById('fileInput');
+
+        captureButton.addEventListener("click",async() => {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            const dataUrl = canvas.toDataURL('image/jpg');
+            photo.src = dataUrl;
+            photo.style.display = 'inline-block';
+
+        })
+
+        uploadButton.addEventListener("click",() => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener("change",(event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    photo.src = e.target.result;
+                    photo.style.display = 'inline-block';
+
+                    const context = canvas.getContext('2d');
+                    context.clearRect(0, 0, canvas.width, canvas.height);
+                };
+                reader.readAsDataURL(file);
+                event.target.value = '';
+            }
+        });
+
+        classifyButton.addEventListener("click", async () => {
+            const img = document.querySelector('img');
+            let result = await model.predict(photo);
+            let sorted = result.classes.sort((a, b)=> {return (a["score"] <= b["score"] ?1:-1); }) .slice(0, 5);
+
+            console.log(...sorted)
+            resultDiv.textContent = sorted
+             .map((c) => '${c.className} : ${c.score.toFixed(3)}' )
+             .join(", ")
+        });
+
+    </script>
+
+
+</body>
+</html>
