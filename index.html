@@ -104,7 +104,7 @@
             const context = canvas.getContext('2d');
             context.drawImage(video, 0, 0, canvas.width, canvas.height);
             photo.src = canvas.toDataURL('image/jpeg');
-            photo.style.display = 'block';
+            photo.style.display = 'inline-block';
             resultDiv.innerText = ""; // Altes Ergebnis löschen
         });
 
@@ -116,7 +116,7 @@
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     photo.src = e.target.result;
-                    photo.style.display = 'block';
+                    photo.style.display = 'inline-block';
                     resultDiv.innerText = "";
                 };
                 reader.readAsDataURL(file);
