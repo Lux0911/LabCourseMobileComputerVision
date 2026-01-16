@@ -1,48 +1,50 @@
+<!DOCTYPE html>
 <html>
-
 <head>
     <title>LabCourseMobileComputerVision</title>
-    <!-- CSS = Cascading Style Sheets -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    
     <link rel="stylesheet" type="text/css" href="style.css">
 
-</head>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-tflite/dist/tf-tflite.min.js"></script>
+    
+    </head>
 
 <body>
     <h1>Room Finder</h1>
-    <p>Take a picture or upload an image of a supported room or hallway to directly check where you are.</p>
+    <p>Take a picture or upload an image of a supported room.</p>
+    
     <video id="video" autoplay playsinline></video>
-    <img id="photo"/>
-    <br>
+    <img id="photo" style="display:none; max-width: 100%; margin-top:10px;"/>
+    <br><br>
+    
     <button id="captureButton" class="btn">Take Image</button>
     <button id="uploadButton" class="btn">Upload Image</button>
     <button id="classifyButton" class="clb">Classify Image</button>
-    <input type="file" id="fileInput" accept ="image/*" style="display:none;"/>
     
+    <input type="file" id="fileInput" accept="image/*" style="display:none;"/>
     <canvas id="canvas" style="display:none;"></canvas> 
     
-    <div id="resultDiv" class="result"></div>
+    <div id="resultDiv" class="result" style="margin-top: 20px; font-weight: bold;"></div>
 
-    
     <script>
-        async function startCamera() {
-            const videoElement = document.getElementById('video');
+        // 1. WICHTIG: Hier musst du deine Klassen aus Python reinkopieren!
+        // Da wir das Modell "roh" laden, weiß JS nicht, wie die Räume heißen.
+        const CLASS_NAMES = [
+             'LM_HW_706', 'LM_HW_708', 'LM_HW_709', 'LM_HW_716', 'LM_HW_718', 
+             'LM_HW_719', 'LM_North', 'LM_North_East', 'LM_RM_001', 'LM_RM_006', 
+             'LM_RM_008', 'LM_RM_012', 'LM_RM_020', 'LM_RM_030', 'LM_RM_126', 
+             'LM_South', 'LM_South_East', 'WM_HW_701', 'WM_Main_entrance', 
+             'WM_RM_001', 'WM_RM_006', 'WM_RM_009', 'WM_RM_010', 'WM_RM_011', 
+             'WM_RM_012', 'WM_RM_019', 'WM_RM_020'
+        ];
 
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: 
-                    {facingMode: "environment"},
-                    audio: false
-                });
+        let model = null; // Variable global machen
 
-                videoElement.srcObject = stream;
-                videoElement.play();
-            } catch (error) {
-                console.error("Error accessing camera: ", error);
-            }
-            
-        }
-        window.addEventListener('load', startCamera);
-
+        // Elemente holen
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
         const photo = document.getElementById('photo');
@@ -50,53 +52,130 @@
         const resultDiv = document.getElementById('resultDiv');
         const uploadButton = document.getElementById('uploadButton');
         const fileInput = document.getElementById('fileInput');
+        const classifyButton = document.getElementById('classifyButton');
 
-        captureButton.addEventListener("click",async() => {
+        // Kamera starten
+        async function startCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: "environment" },
+                    audio: false
+                });
+                video.srcObject = stream;
+                video.play();
+            } catch (err) {
+                console.warn("Rückkamera nicht gefunden, versuche Fallback...",err);
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ 
+                        video: true,
+                        audio: false
+                    });
+                    video.srcObject = stream;
+                    video.play();
+                } catch (error2) {
+                    console.error("Kamera konnte nicht gestartet werden:", error2);
+                    alert("Kamera konnte nicht gestartet werden. Bitte erlaube den Kamerazugriff oder lade ein Bild hoch.");
+                }
+            }
+        }
+        window.addEventListener('load', startCamera);
+
+        // Modell Laden (Korrigiert: TFLite direkt laden statt Task API)
+        async function loadModel() {
+            console.log("Lade Modell...");
+            try {
+                // Pfad zur .tflite Datei muss stimmen!
+                model = await tflite.loadTFLiteModel('tum_rooms_big.tflite');
+                console.log("Modell erfolgreich geladen!");
+                classifyButton.innerText = "Classify Image (Bereit)";
+            } catch (e) {
+                console.error("Fehler beim Laden:", e);
+                resultDiv.innerText = "Fehler: Modell konnte nicht geladen werden.";
+            }
+        }
+        // Direkt starten
+        loadModel();
+
+
+        // Button Logik
+        captureButton.addEventListener("click", () => {
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
-
             const context = canvas.getContext('2d');
             context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-            const dataUrl = canvas.toDataURL('image/jpg');
-            photo.src = dataUrl;
-            photo.style.display = 'inline-block';
-
-        })
-
-        uploadButton.addEventListener("click",() => {
-            fileInput.click();
+            photo.src = canvas.toDataURL('image/jpeg');
+            photo.style.display = 'block';
+            resultDiv.innerText = ""; // Altes Ergebnis löschen
         });
 
-        fileInput.addEventListener("change",(event) => {
+        uploadButton.addEventListener("click", () => fileInput.click());
+
+        fileInput.addEventListener("change", (event) => {
             const file = event.target.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = (e) => {
                     photo.src = e.target.result;
-                    photo.style.display = 'inline-block';
-
-                    const context = canvas.getContext('2d');
-                    context.clearRect(0, 0, canvas.width, canvas.height);
+                    photo.style.display = 'block';
+                    resultDiv.innerText = "";
                 };
                 reader.readAsDataURL(file);
                 event.target.value = '';
             }
         });
 
+        // Die Klassifizierung (Hier war der größte Umbau nötig)
         classifyButton.addEventListener("click", async () => {
-            const img = document.querySelector('img');
-            let result = await model.predict(photo);
-            let sorted = result.classes.sort((a, b)=> {return (a["score"] <= b["score"] ?1:-1); }) .slice(0, 5);
+            if (!model) {
+                alert("Modell lädt noch, bitte warten...");
+                return;
+            }
+            
+            resultDiv.innerText = "Analysiere...";
 
-            console.log(...sorted)
-            resultDiv.textContent = sorted
-             .map((c) => '${c.className} : ${c.score.toFixed(3)}' )
-             .join(", ")
+            // TensorFlow Tidy räumt Speicher automatisch auf
+            tf.tidy(() => {
+                // 1. Bild in Tensor umwandeln
+                let input = tf.browser.fromPixels(photo);
+                
+                // 2. Größe anpassen (EfficientNet braucht 224x224)
+                input = tf.image.resizeBilinear(input, [224, 224]);
+                
+                // 3. Dimension hinzufügen: [224,224,3] -> [1,224,224,3]
+                input = tf.expandDims(input,0);
+                
+                // (Optional: Falls dein Modell 0-1 erwartet, hier durch 255 teilen. 
+                // EfficientNet erwartet meist 0-255, also lassen wir es so.)
+                // input = input.div(255.0); 
+                input = tf.cast(input,'float32');
+                input = tf.div(input, tf.scalar(255.0));
+
+                console.log("Input Shape:", input.shape);
+                console.log("Input Type:", input.dtype);
+
+                // 4. Vorhersage machen
+                const outputTensor = model.predict(input);
+                const values = outputTensor.dataSync(); // Daten auslesen
+
+                // 5. Top Ergebnis finden
+                let maxIndex = 0;
+                let maxProb = 0;
+                for (let i = 0; i < values.length; i++) {
+                    if (values[i] > maxProb) {
+                        maxProb = values[i];
+                        maxIndex = i;
+                    }
+                }
+
+                // 6. Ergebnis anzeigen
+                // FIX: Hier müssen Backticks ` verwendet werden, keine '
+                const className = CLASS_NAMES[maxIndex] || "Unbekannt";
+                const score = (maxProb * 100).toFixed(1);
+                
+                resultDiv.innerHTML = `Ergebnis: <br><b>${className}</b> (${score}%)`;
+                console.log(values);
+            });
         });
-
     </script>
-
-
 </body>
 </html>
