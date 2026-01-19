@@ -142,7 +142,7 @@
                     img = tf.image.resizeBilinear(img, [224, 224]);
                     img = tf.expandDims(img, 0);
                     // Dein Modell will float32, also durch 255 teilen:
-                    return tf.div(tf.cast(img, 'float32'), 255.0);
+                    return tf.div(tf.cast(img, 'float32'), 1);
                 });
 
                 // 2. Predict (Muss außerhalb von tf.tidy sein für TFLite!)
