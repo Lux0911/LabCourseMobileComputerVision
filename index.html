@@ -90,6 +90,15 @@
                     enableXnnpack: false
                 });
                 console.log("Modell erfolgreich geladen!");
+                tf.tidy(() => {
+                    const dummyInput = tf.zeros([1, 224, 224, 3], 'float32');
+                    let result = model.predict(dummyInput);
+                    if (result instanceof tf.Tensor) {
+                        result.dispose();
+                    } else {
+                        Object.values(result).forEach(tensor => tensor.dispose());
+                    }
+                });
                 classifyButton.innerText = "Classify Image (Bereit)";
             } catch (e) {
                 console.error("Fehler beim Laden:", e);
@@ -107,7 +116,7 @@
             }
         };
 
-
+        
         // Button Logik
         captureButton.addEventListener("click", () => {
             classifyButton.disabled = true;
