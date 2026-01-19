@@ -3,15 +3,17 @@
 <head>
     <title>LabCourseMobileComputerVision</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    
     <link rel="stylesheet" type="text/css" href="style.css">
-
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl"></script>
-    
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-tflite/dist/tf-tflite.min.js"></script>
-    
-    </head>
+
+    <script>
+      // WICHTIG: Das hier muss VOR deinem eigenen Script stehen!
+      // Wir zwingen TFLite, die Version OHNE SIMD zu nutzen.
+      // Der Pfad muss explizit gesetzt werden, sonst sucht er automatisch.
+      tflite.setWasmPath('https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-tflite/dist/');
+    </script>
+</head>
 
 <body>
     <h1>Room Finder</h1>
@@ -31,8 +33,6 @@
     <div id="resultDiv" class="result" style="margin-top: 20px; font-weight: bold;"></div>
 
     <script>
-        // 1. WICHTIG: Hier musst du deine Klassen aus Python reinkopieren!
-        // Da wir das Modell "roh" laden, weiß JS nicht, wie die Räume heißen.
         const CLASS_NAMES = [
              'LM_HW_706', 'LM_HW_708', 'LM_HW_709', 'LM_HW_716', 'LM_HW_718', 
              'LM_HW_719', 'LM_North', 'LM_North_East', 'LM_RM_001', 'LM_RM_006', 
@@ -85,7 +85,10 @@
             console.log("Lade Modell...");
             try {
                 // Pfad zur .tflite Datei muss stimmen!
-                model = await tflite.loadTFLiteModel('tum_rooms_big.tflite');
+                model = await tflite.loadTFLiteModel('tum_rooms_big.tflite', {
+                    numThreads: 1,       // Verhindert Threading-Probleme
+                    enableXnnpack: false
+                });
                 console.log("Modell erfolgreich geladen!");
                 classifyButton.innerText = "Classify Image (Bereit)";
             } catch (e) {
@@ -126,38 +129,45 @@
 
         // Die Klassifizierung (Hier war der größte Umbau nötig)
         classifyButton.addEventListener("click", async () => {
-            if (!model) {
-                alert("Modell lädt noch, bitte warten...");
-                return;
-            }
-            
+            if (!model) return;
             resultDiv.innerText = "Analysiere...";
 
-            // TensorFlow Tidy räumt Speicher automatisch auf
-            tf.tidy(() => {
-                // 1. Bild in Tensor umwandeln
-                let input = tf.browser.fromPixels(photo);
-                
-                // 2. Größe anpassen (EfficientNet braucht 224x224)
-                input = tf.image.resizeBilinear(input, [224, 224]);
-                
-                // 3. Dimension hinzufügen: [224,224,3] -> [1,224,224,3]
-                input = tf.expandDims(input,0);
-                
-                // (Optional: Falls dein Modell 0-1 erwartet, hier durch 255 teilen. 
-                // EfficientNet erwartet meist 0-255, also lassen wir es so.)
-                // input = input.div(255.0); 
-                input = tf.cast(input,'float32');
-                input = tf.div(input, tf.scalar(255.0));
+            let inputTensor = null;
+            let outputTensor = null;
 
-                console.log("Input Shape:", input.shape);
-                console.log("Input Type:", input.dtype);
+            try {
+                // 1. Preprocessing (sauber getrennt)
+                inputTensor = tf.tidy(() => {
+                    let img = tf.browser.fromPixels(photo);
+                    img = tf.image.resizeBilinear(img, [224, 224]);
+                    img = tf.expandDims(img, 0);
+                    // Dein Modell will float32, also durch 255 teilen:
+                    return tf.div(tf.cast(img, 'float32'), 255.0);
+                });
 
-                // 4. Vorhersage machen
-                const outputTensor = model.predict(input);
-                const values = outputTensor.dataSync(); // Daten auslesen
+                // 2. Predict (Muss außerhalb von tf.tidy sein für TFLite!)
+                // Der Absturz passiert oft hier, wenn Speicher knapp ist.
+                let result = model.predict(inputTensor);
 
-                // 5. Top Ergebnis finden
+                // Falls Dict zurückkommt, Tensor extrahieren
+                if (result instanceof tf.Tensor) {
+                    outputTensor = result;
+                } else {
+                    const keys = Object.keys(result);
+                    outputTensor = result[keys[0]];
+                    if(keys.length > 1) { 
+                        // Speicherleck verhindern bei Dicts
+                        Object.keys(result).forEach(k => {
+                            if(k !== keys[0]) result[k].dispose();
+                        });
+                    }
+                }
+
+                // 3. WICHTIGSTER FIX: Asynchron warten!
+                // Ersetzt .dataSync() -> verhindert WASM Crash
+                const values = await outputTensor.data(); 
+
+                // Auswertung
                 let maxIndex = 0;
                 let maxProb = 0;
                 for (let i = 0; i < values.length; i++) {
@@ -166,15 +176,19 @@
                         maxIndex = i;
                     }
                 }
-
-                // 6. Ergebnis anzeigen
-                // FIX: Hier müssen Backticks ` verwendet werden, keine '
+                
                 const className = CLASS_NAMES[maxIndex] || "Unbekannt";
                 const score = (maxProb * 100).toFixed(1);
-                
                 resultDiv.innerHTML = `Ergebnis: <br><b>${className}</b> (${score}%)`;
-                console.log(values);
-            });
+
+            } catch (error) {
+                console.error("Fehler:", error);
+                resultDiv.innerText = "Fehler: " + error.message;
+            } finally {
+                // 4. Aufräumen (extrem wichtig bei WASM)
+                if (inputTensor) inputTensor.dispose();
+                if (outputTensor) outputTensor.dispose();
+            }
         });
     </script>
 </body>
