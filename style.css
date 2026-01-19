@@ -1,14 +1,31 @@
 body {
     font-family: sans-serif;
     padding: 20px;
+    background-color: #000000;
 }
 
 video {
     width: 45%;
+    border-radius:8px;
+}
+
+p {
+    color: white;
+    text-align: center;
+}
+
+h1 {
+    color: white;
+    text-align: center;
+}
+
+h2{
+  margin-top: 0px;
 }
 
 #photo {
     width: 45%;
+    border-radius: 8px;
 
 }
 
@@ -57,7 +74,7 @@ video {
 }
 
 .result {
-    margin-top: 6px;
+    margin-top: 3px;
     color: #1b8e2e;
 }
 
@@ -74,7 +91,7 @@ video {
 }
 
 .popup-content {
-  background: #ffffff;
+  background: #040168;
   padding: 12px 0px;
   border-radius: 12px;
   width: 90%;
