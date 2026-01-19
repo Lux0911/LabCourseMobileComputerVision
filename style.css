@@ -1,7 +1,8 @@
 body {
     font-family: sans-serif;
+
     padding: 20px;
-    background-color: #000000;
+    background: radial-gradient(#dbfffe, #e8f3ff);
 }
 
 video {
@@ -10,13 +11,15 @@ video {
 }
 
 p {
-    color: white;
+    color: black;
     text-align: center;
 }
 
 h1 {
-    color: white;
+    color: black;
     text-align: center;
+    font: impact, Haettenschweiler, sans-serif;
+    font-size: 36px;
 }
 
 h2{
@@ -75,7 +78,7 @@ h2{
 
 .result {
     margin-top: 3px;
-    color: #1b8e2e;
+    color: #073ba2;
 }
 
 #popup {
@@ -91,7 +94,7 @@ h2{
 }
 
 .popup-content {
-  background: #040168;
+  background: #c5f2ff;
   padding: 12px 0px;
   border-radius: 12px;
   width: 90%;
