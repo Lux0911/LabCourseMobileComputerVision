@@ -107,7 +107,7 @@
                         Object.values(result).forEach(tensor => tensor.dispose());
                     }
                 });
-                classifyButton.innerText = "Classify Image (Bereit)";
+                classifyButton.innerText = "Classify Image (Ready)";
             } catch (e) {
                 console.error("Fehler beim Laden:", e);
                 resultDiv.innerText = "Fehler: Modell konnte nicht geladen werden.";
@@ -260,7 +260,7 @@
                 const className = CLASS_NAMES[maxIndex] || "Unbekannt";
                 const fullName = room_dictionary[className] || className;
                 const score = (maxProb * 100).toFixed(1);
-                resultDiv.innerHTML = `Ergebnis: <br><b>${fullName}</b> (${score}%)`;
+                resultDiv.innerHTML = `Result: <br><b>${fullName}</b> (${score}%)`;
 
 
                 popup.style.display = "flex";
