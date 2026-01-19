@@ -166,6 +166,7 @@
                 // 3. WICHTIGSTER FIX: Asynchron warten!
                 // Ersetzt .dataSync() -> verhindert WASM Crash
                 const values = await outputTensor.data(); 
+                console.log("Raw Output Values:", values);
 
                 // Auswertung
                 let maxIndex = 0;
