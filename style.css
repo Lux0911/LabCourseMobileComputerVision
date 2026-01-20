@@ -1,165 +1,137 @@
 :root {
-    /* Farbpalette (TUM-inspired Blue & Modern Dark) */
-    --primary-color: #3070b3;       /* TUM Blau */
+    --primary-color: #3070b3;
     --primary-hover: #23568d;
-    --accent-green: #2ecc71;        /* Modernes Grün für Success */
+    --accent-green: #2ecc71;
     --accent-green-hover: #27ae60;
-    --bg-color: #f4f6f9;            /* Sehr helles Grau-Blau, augenfreundlich */
-    --card-bg: #ffffff;
+    --bg-color: #f4f6f9;
     --text-main: #333333;
     --text-muted: #666666;
-    --shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    --radius: 12px;                 /* Einheitliche Rundungen */
+    --radius: 12px;
+    --shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
-/* Grundeinstellungen */
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: --bg-color;
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); /* Subtiler Gradient */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     color: var(--text-main);
-    margin: 0;
+    
+    /* WICHTIG: Kein Flexbox auf dem Body, damit die Struktur stabil bleibt */
+    display: block; 
+    text-align: center; /* Zentriert alles */
+    
+    max-width: 1000px;
+    margin: 0 auto;
     padding: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
     min-height: 100vh;
-    box-sizing: border-box;
 }
 
-/* Typografie */
+/* 1. Header & Text - Schön untereinander */
 h1 {
-    font-weight: 700;
     font-size: 2.5rem;
-    margin-bottom: 0.5rem;
     color: var(--primary-color);
+    margin-bottom: 10px;
     letter-spacing: -0.5px;
-    text-transform: none; /* Kein Impact-Style mehr, wirkt seriöser */
 }
 
 p {
     color: var(--text-muted);
-    margin-top: 0;
-    margin-bottom: 2rem;
     font-size: 1.1rem;
-    max-width: 600px;
-    text-align: center;
+    margin-bottom: 30px;
     line-height: 1.5;
 }
 
-/* Medien (Video & Foto) - Container-Look */
+/* 2. Medien: Video & Foto NEBENEINANDER */
+/* Wir nutzen inline-block, damit sie nebeneinander fließen */
 video, #photo {
-    width: 100%;
-    max-width: 500px; /* Begrenzung für Desktop */
-    height: auto;
+    display: inline-block;
+    vertical-align: top; /* Bündig oben ausrichten */
+    
+    width: 48%;          /* Beide nehmen knapp die Hälfte ein */
+    max-width: 48%;      /* Sicherheitshalber */
+    height: auto;        /* Höhe passt sich automatisch an */
+    aspect-ratio: 4/3;   /* Erzwingt gleiches Format für beide */
+    
     border-radius: var(--radius);
-    box-shadow: var(--shadow-soft);
+    box-shadow: var(--shadow);
     background-color: #000;
-    margin-bottom: 20px;
     object-fit: cover;
-    display: block;
+    
+    margin: 5px;         /* Kleiner Abstand dazwischen */
 }
 
-/* Buttons - Modern & Clean */
+/* Falls das Foto noch nicht da ist (display:none im HTML), stört es nicht. 
+   Sobald es sichtbar wird, springt es neben das Video. */
+
+/* 3. Buttons - Wieder schön UNTEREINANDER & mittig */
 .btn, .clb {
+    display: block;      /* Erzwingt neue Zeile pro Button */
+    margin: 15px auto;   /* auto zentriert den Block horizontal */
+    
+    width: 100%;
+    max-width: 400px;    /* Nicht zu breit werden lassen */
+    
     border: none;
     border-radius: var(--radius);
     color: white;
-    cursor: pointer;
     font-size: 1rem;
     font-weight: 600;
-    padding: 14px 24px;
-    margin: 8px 0;
-    width: 100%;
-    max-width: 500px; /* Damit sie am PC nicht riesig werden */
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 16px;
+    cursor: pointer;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    
-    /* Flexbox für Text-Zentrierung */
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
-/* Action Buttons (Blau) */
 .btn {
     background-color: var(--primary-color);
-    background-image: none; /* Keine altmodischen Gradienten */
 }
-
 .btn:hover {
     background-color: var(--primary-hover);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    transform: translateY(-2px);
 }
 
-.btn:active {
-    transform: translateY(0);
-}
-
-/* Classify Button (Grün) */
 .clb {
     background-color: var(--accent-green);
-    background-image: none;
-    margin-top: 15px; /* Etwas Abstand zur Gruppe */
+    margin-top: 30px; /* Mehr Abstand vor dem Classify Button */
 }
-
 .clb:hover {
     background-color: var(--accent-green-hover);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+    transform: translateY(-2px);
 }
-
 .clb:disabled {
-    background-color: #95a5a6;
+    background-color: #bdc3c7;
     cursor: not-allowed;
     transform: none;
-    box-shadow: none;
 }
 
-/* Popup - Glassmorphism Effekt */
+/* 4. Popup & Ergebnis */
 #popup {
-    backdrop-filter: blur(8px); /* Weichzeichner im Hintergrund */
+    backdrop-filter: blur(5px);
     background: rgba(0, 0, 0, 0.4);
-    transition: opacity 0.3s ease;
 }
-
 .popup-content {
-    background: var(--card-bg);
-    padding: 30px;
+    background: white;
     border-radius: 16px;
-    width: 85%;
-    max-width: 400px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.2);
-    text-align: center;
-    position: relative;
-    border: 1px solid rgba(255,255,255,0.5);
+    padding: 30px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    color: #333;
 }
-
-.popup-close {
-    position: absolute;
-    top: 15px;
-    right: 20px;
-    font-size: 24px;
-    font-weight: bold;
-    color: #aaa;
-    transition: color 0.2s;
-    line-height: 1;
-}
-
-.popup-close:hover {
-    color: var(--text-main);
-}
-
-/* Ergebnis Text */
 .result {
     margin-top: 15px;
     color: var(--primary-color);
-    font-size: 1.2rem;
-    line-height: 1.4;
-    padding: 10px;
-    background: #f0f7ff;
+    font-size: 1.3rem;
+    background: #eef6ff;
+    padding: 15px;
     border-radius: 8px;
+}
+
+/* MOBILE OPTIMIERUNG */
+/* Auf dem Handy sollen Video/Foto doch untereinander sein, sonst wird es zu klein */
+@media (max-width: 600px) {
+    video, #photo {
+        width: 100%;
+        max-width: 100%;
+        margin-bottom: 15px;
+    }
 }
