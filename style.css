@@ -1,137 +1,131 @@
-:root {
-    --primary-color: #3070b3;
-    --primary-hover: #23568d;
-    --accent-green: #2ecc71;
-    --accent-green-hover: #27ae60;
-    --bg-color: #f4f6f9;
-    --text-main: #333333;
-    --text-muted: #666666;
-    --radius: 12px;
-    --shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-    color: var(--text-main);
-    
-    /* WICHTIG: Kein Flexbox auf dem Body, damit die Struktur stabil bleibt */
-    display: block; 
-    text-align: center; /* Zentriert alles */
-    
-    max-width: 1000px;
-    margin: 0 auto;
+    font-family: sans-serif;
+
     padding: 20px;
-    min-height: 100vh;
+    background: radial-gradient(#dbfffe, #e8f3ff);
 }
 
-/* 1. Header & Text - Schön untereinander */
-h1 {
-    font-size: 2.5rem;
-    color: var(--primary-color);
-    margin-bottom: 10px;
-    letter-spacing: -0.5px;
+video {
+    width: 45%;
+    border-radius:8px;
 }
 
 p {
-    color: var(--text-muted);
-    font-size: 1.1rem;
-    margin-bottom: 30px;
-    line-height: 1.5;
+    color: black;
+    text-align: center;
 }
 
-/* 2. Medien: Video & Foto NEBENEINANDER */
-/* Wir nutzen inline-block, damit sie nebeneinander fließen */
-video, #photo {
-    display: inline-block;
-    vertical-align: top; /* Bündig oben ausrichten */
-    
-    width: 48%;          /* Beide nehmen knapp die Hälfte ein */
-    max-width: 48%;      /* Sicherheitshalber */
-    height: auto;        /* Höhe passt sich automatisch an */
-    aspect-ratio: 4/3;   /* Erzwingt gleiches Format für beide */
-    
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    background-color: #000;
-    object-fit: cover;
-    
-    margin: 5px;         /* Kleiner Abstand dazwischen */
+h1 {
+    color: black;
+    text-align: center;
+    font: impact, Haettenschweiler, sans-serif;
+    font-size: 36px;
 }
 
-/* Falls das Foto noch nicht da ist (display:none im HTML), stört es nicht. 
-   Sobald es sichtbar wird, springt es neben das Video. */
+h2{
+  margin-top: 0px;
+}
 
-/* 3. Buttons - Wieder schön UNTEREINANDER & mittig */
-.btn, .clb {
-    display: block;      /* Erzwingt neue Zeile pro Button */
-    margin: 15px auto;   /* auto zentriert den Block horizontal */
-    
-    width: 100%;
-    max-width: 400px;    /* Nicht zu breit werden lassen */
-    
-    border: none;
-    border-radius: var(--radius);
-    color: white;
-    font-size: 1rem;
-    font-weight: 600;
-    padding: 16px;
-    cursor: pointer;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    transition: transform 0.2s, box-shadow 0.2s;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+#photo {
+    width: 45%;
+    border-radius: 8px;
+
 }
 
 .btn {
-    background-color: var(--primary-color);
+    align-items: center;
+    background: linear-gradient(90deg, #3070b3, #2060a3);
+    border: 0px solid #ccc;
+    border-radius: 6px;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    font-size: 16px;
+    height: 48px;
+    justify-content: center;
+    margin-left: 0px;
+    margin-top: 6px;
+    opacity: .9;
+    padding: 2px 18px;
+    width: 100%;
 }
+
 .btn:hover {
-    background-color: var(--primary-hover);
-    transform: translateY(-2px);
+    opacity: 1;
 }
 
 .clb {
-    background-color: var(--accent-green);
-    margin-top: 30px; /* Mehr Abstand vor dem Classify Button */
+    align-items: center;
+    background: linear-gradient(90deg, #0b531d, #1b8e2e);
+    border: 0px solid #ccc;
+    border-radius: 6px;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    font-size: 16px;
+    height: 48px;
+    justify-content: center;
+    margin-left: 0px;
+    margin-top: 6px;
+    opacity: .9;
+    padding: 2px 18px;
+    width: 100%;
 }
+
 .clb:hover {
-    background-color: var(--accent-green-hover);
-    transform: translateY(-2px);
-}
-.clb:disabled {
-    background-color: #bdc3c7;
-    cursor: not-allowed;
-    transform: none;
+    opacity: 1;
 }
 
-/* 4. Popup & Ergebnis */
-#popup {
-    backdrop-filter: blur(5px);
-    background: rgba(0, 0, 0, 0.4);
-}
-.popup-content {
-    background: white;
-    border-radius: 16px;
-    padding: 30px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-    color: #333;
-}
 .result {
-    margin-top: 15px;
-    color: var(--primary-color);
-    font-size: 1.3rem;
-    background: #eef6ff;
-    padding: 15px;
-    border-radius: 8px;
+    margin-top: 3px;
+    color: #073ba2;
 }
 
-/* MOBILE OPTIMIERUNG */
-/* Auf dem Handy sollen Video/Foto doch untereinander sein, sonst wird es zu klein */
-@media (max-width: 600px) {
-    video, #photo {
-        width: 100%;
-        max-width: 100%;
-        margin-bottom: 15px;
-    }
+#popup {
+  display: none;              /* wird per JS auf block gesetzt */
+  position: fixed;
+  inset: 0;                   /* top, right, bottom, left = 0 */
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+
+  /* Zentrieren */
+  align-items: center;
+  justify-content: center;
+}
+
+.popup-content {
+  background: #c5f2ff;
+  padding: 12px 0px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 420px;
+
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  text-align: center;
+
+  animation: popupFadeIn 0.25s ease-out;
+}
+
+.popup-close {
+  position: relative;
+  top: 40%;
+  right: -45%;
+  font-size: 18px;
+  cursor: pointer;
+  color: #666;
+}
+
+.popup-close:hover {
+  color: #000;
+}
+
+@keyframes popupFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
