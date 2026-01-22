@@ -17,10 +17,27 @@
 
 <body>
     <h1>Room Finder</h1>
-    <p>Take a picture or upload an image of a supported room.</p>
+    <h3>Take a picture or upload an image of a supported location.</h3>
     
-    <video id="video" autoplay playsinline></video>
-    <img id="photo" style="display:none; max-width: 100%; margin-top:10px;"/>
+
+
+    <div class="image-container">
+        <div class="camera-container">
+            <div>
+                <p>Live-footage</p>
+            </div>
+            <video id="video" autoplay playsinline></video>
+        </div>
+        <div class="taken-upload-container">
+            <div>
+                <p>Image</p>
+            </div>
+            <img id="photo" style="display:none; max-width: 100%; margin-top:10px;"/>
+        </div>
+    </div>
+
+
+
     <br><br>
     
     <button id="captureButton" class="btn">Take Image</button>
