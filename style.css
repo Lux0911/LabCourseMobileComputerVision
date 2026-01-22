@@ -2,39 +2,51 @@ body {
     font-family: sans-serif;
 
     padding: 20px;
-    background: radial-gradient(#dbfffe, #e8f3ff);
+    background: #ffffff;
 }
 
 video {
-    width: 45%;
+    margin-top: 12px;
+    width: 100%;
     border-radius:8px;
 }
 
+h3 {
+  color: rgb(108, 107, 184);
+  text-align: center;
+  margin-bottom: 40px;
+}
+
 p {
-    color: black;
+    color: rgb(255, 255, 255);
     text-align: center;
+
+
 }
 
 h1 {
-    color: black;
+    color: rgb(61, 59, 189);
     text-align: center;
     font: impact, Haettenschweiler, sans-serif;
-    font-size: 36px;
+    font-size: 55px;
+    margin-bottom: 25px;
 }
 
 h2{
   margin-top: 0px;
+  color: rgb(25, 24, 75);
 }
 
 #photo {
-    width: 45%;
+    margin-top: 12px;
+    width: 100%;
     border-radius: 8px;
 
 }
 
 .btn {
     align-items: center;
-    background: linear-gradient(90deg, #3070b3, #2060a3);
+    background: #6273cf;
     border: 0px solid #ccc;
     border-radius: 6px;
     color: white;
@@ -56,7 +68,7 @@ h2{
 
 .clb {
     align-items: center;
-    background: linear-gradient(90deg, #0b531d, #1b8e2e);
+    background: #1c8a60;
     border: 0px solid #ccc;
     border-radius: 6px;
     color: white;
@@ -78,7 +90,7 @@ h2{
 
 .result {
     margin-top: 3px;
-    color: #073ba2;
+    color: rgb(53, 51, 161);
 }
 
 #popup {
@@ -94,7 +106,7 @@ h2{
 }
 
 .popup-content {
-  background: #c5f2ff;
+  background: rgb(202, 201, 236);
   padding: 12px 0px;
   border-radius: 12px;
   width: 90%;
@@ -128,4 +140,21 @@ h2{
     opacity: 1;
     transform: scale(1);
   }
+}
+
+.image-container {
+    display: flex;
+    gap: 8px;                 
+    justify-content: center;
+    align-items: flex-start;
+    width: 100%;
+}
+
+.camera-container,
+.taken-upload-container {
+    flex: 1;                   
+    max-width: 50%;
+    text-align: center;
+    color :rgb(23, 22, 65);
+    font-size: 17px;
 }
